@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Define the data to be written in hex format
+# Define the new data to be written in hex format
 DATA=(
     "03" "04" "07" "10" "00" "00" "00" "00"
     "00" "00" "00" "06" "67" "00" "00" "00"
@@ -16,6 +16,9 @@ DATA=(
     "39" "20" "20" "68" "f0" "05" "f6"
 )
 
+# Total number of addresses to write (0x00 to 0xFF = 256)
+TOTAL_ADDRESSES=256
+
 # Unlocking module
 echo "Unlocking module"
 ./myunlock.sh
@@ -28,4 +31,10 @@ for value in "${DATA[@]}"; do
     i2cset -y 1 0x50 0x$(printf "%02x" ${start_addr}) 0x$value
     sleep 0.05
     start_addr=$((start_addr + 1))
+done
+
+# Write 00 to remaining addresses
+for (( ; start_addr < TOTAL_ADDRESSES; start_addr++ )); do
+    i2cset -y 1 0x50 0x$(printf "%02x" ${start_addr}) 0x00
+    sleep 0.05
 done
